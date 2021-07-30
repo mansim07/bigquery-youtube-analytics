@@ -24,13 +24,13 @@ def main():
     api_service_name = "youtube"
     api_version = "v3"
     client_secrets_file = "client_key.json"
-    part_val="contentDetails,snippet"
-    id_val="aew6htG_KAY,Nq1OOEvA6lw"
+    part_val = "contentDetails,snippet"
+    id_val = "aew6htG_KAY,Nq1OOEvA6lw"
 
-    file_path='video_meta.csv'
-    table_id="mnzis-project-01.bq_demo.video_metadata3"
-    schema = [bigquery.SchemaField("video_id", "STRING", mode="REQUIRED"), \
-        bigquery.SchemaField("video_title", "STRING", mode="REQUIRED")]
+    file_path = 'video_meta.csv'
+    table_id = "mnzis-project-01.bq_demo.video_metadata3"
+    schema = [bigquery.SchemaField("video_id", "STRING", mode="REQUIRED"),
+              bigquery.SchemaField("video_title", "STRING", mode="REQUIRED")]
     header = ['video_id', 'video_title']
 
     # Get credentials and create an API client
@@ -47,11 +47,13 @@ def main():
     response = request.execute()
 
     with open(file_path, mode='w') as video_meta:
-        video_writer = csv.writer(video_meta, delimiter='|', quotechar='"', quoting=csv.QUOTE_ALL)
+        video_writer = csv.writer(
+            video_meta, delimiter='|', quotechar='"', quoting=csv.QUOTE_ALL)
         video_writer.writerow(header)
 
         for i in range(len(response.get('items'))):
-            video_writer.writerow([str(response.get('items')[i].get('id')), str(response.get('items')[i].get('snippet').get('title'))])
+            video_writer.writerow([str(response.get('items')[i].get('id')), str(
+                response.get('items')[i].get('snippet').get('title'))])
             #print(response.get('items')[i].get('snippet').get('title'))
     # Construct a BigQuery client object.
     client = bigquery.Client()
@@ -60,10 +62,11 @@ def main():
     # table_id = "your-project.your_dataset.your_table_name"
 
     job_config = bigquery.LoadJobConfig(
-        source_format=bigquery.SourceFormat.CSV, skip_leading_rows=1, autodetect=True,schema=schema
+        source_format=bigquery.SourceFormat.CSV, skip_leading_rows=1, autodetect=True, schema=schema
     )
     with open(file_path, "rb") as source_file:
-        job = client.load_table_from_file(source_file, table_id, job_config=job_config)
+        job = client.load_table_from_file(
+            source_file, table_id, job_config=job_config)
 
     job.result()  # Waits for the job to complete.
 
@@ -73,5 +76,7 @@ def main():
             table.num_rows, len(table.schema), table_id
         )
     )
+
+
 if __name__ == "__main__":
     main()
